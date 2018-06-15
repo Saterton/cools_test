@@ -40,8 +40,6 @@ class FileParse:
                 item_data = {key: value for key, value in zip(settings.TXT_PARAMS, lst)}
                 self.data[item_data.get('id')] = item_data
 
-        self.update_products()
-
     def __xml_parse(self):
         tree = ElementTree.parse(self.filename)
         root = tree.getroot()
@@ -51,7 +49,6 @@ class FileParse:
             for key, value in settings.XML_PARAMS:
                 item_data[key] = get_attr_text(item_basic_data, value)
             self.data[item_data.get('id')] = item_data
-        self.update_products()
 
     def update_products(self):
         self.products = self.session.query(Product).filter(Product.id.in_(self.data.keys())).all()
@@ -66,8 +63,11 @@ class FileParse:
     def parse(self):
         self.__clear_data()
         self.__clear_products()
+
         if self.file_extension == '.xml':
             self.__xml_parse()
         else:
             self.__default_parse()
+
+        self.update_products()
         self.__session_commit()
